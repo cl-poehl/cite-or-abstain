@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cite-or-abstain"
+version = "0.1.0"
+description = "Evaluation harness for cite-or-abstain compliance in clinical LLM outputs."
+readme = "README.md"
+authors = [{ name = "Carl Luis Pöhl", email = "clpoehl@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+keywords = ["clinical-ai", "llm-evaluation", "safety", "cite-or-abstain", "medical-ai"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+dependencies = [
+    "pydantic>=2.7",
+    "anthropic>=0.40",
+    "openai>=1.50",
+    "rich>=13.0",
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.10",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+coa = "coa.cli:app"
+
+[project.urls]
+Homepage = "https://carlpoehl.com"
+"Methodology essay" = "https://carlpoehl.com/writing/cite-or-abstain"
+Source = "https://github.com/cl-poehl/cite-or-abstain"
+Issues = "https://github.com/cl-poehl/cite-or-abstain/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["coa"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"coa/prompts" = "coa/prompts"
+"coa/data" = "coa/data"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "B", "UP"]

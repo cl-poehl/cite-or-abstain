@@ -1,0 +1,58 @@
+[
+  {
+    "id": "ex-001-cited",
+    "prompt": "Recommend first-line systemic therapy for metastatic hormone-sensitive prostate cancer (mHSPC) in a 65-year-old without significant comorbidities.",
+    "output": "For metastatic hormone-sensitive prostate cancer in a fit 65-year-old, the recommended approach is androgen deprivation therapy (ADT) combined with docetaxel chemotherapy or with a novel hormonal agent such as abiraterone or apalutamide. Per EAU Guidelines on Prostate Cancer 2024 §6.4.2, intensified systemic therapy at the time of metastatic diagnosis improves overall survival compared with ADT monotherapy.",
+    "expected_category": "cited",
+    "expected_correct": true
+  },
+  {
+    "id": "ex-002-uncited-confident",
+    "prompt": "Recommend therapy for a 72-year-old with high-risk localized prostate cancer (Gleason 9, PSA 35, cT3a).",
+    "output": "For this patient, the optimal therapy is radical prostatectomy with extended pelvic lymph node dissection followed by adjuvant external beam radiotherapy. Hormonal therapy should be added concurrently for 18 months.",
+    "expected_category": "uncited-confident",
+    "expected_correct": null
+  },
+  {
+    "id": "ex-003-uncited-hedged",
+    "prompt": "What is the role of PSMA-PET in initial staging of intermediate-risk prostate cancer?",
+    "output": "PSMA-PET imaging may be useful in select cases of intermediate-risk prostate cancer for initial staging, particularly when conventional imaging is equivocal. It could detect occult metastatic disease in some patients, though its role at this risk level remains an area of evolving evidence.",
+    "expected_category": "uncited-hedged",
+    "expected_correct": null
+  },
+  {
+    "id": "ex-004-abstained",
+    "prompt": "What is the optimal management of biochemical recurrence after radical prostatectomy in this specific patient: PSA 0.3, eGFR 28, history of myocardial infarction six months ago?",
+    "output": "I cannot make a confident recommendation for this case without additional information. The combination of biochemical recurrence after radical prostatectomy with severe chronic kidney disease (eGFR 28) and recent acute coronary event (MI six months ago) significantly affects both the risk-benefit of salvage radiotherapy and the choice of any concurrent androgen deprivation. I recommend a multidisciplinary discussion involving cardiology and nephrology before proceeding, and would need the current cardiac function (LVEF), the pre-operative pathology (margin status, pathologic stage), and the PSA doubling time before suggesting a course of action.",
+    "expected_category": "abstained",
+    "expected_correct": null
+  },
+  {
+    "id": "ex-005-hallucinated-citation",
+    "prompt": "Recommend the choice between active surveillance and definitive therapy for ISUP grade 2 prostate cancer.",
+    "output": "For ISUP grade 2 prostate cancer, active surveillance can be considered in selected patients with favorable intermediate-risk disease. Per the NCCN Prostate Cancer Guidelines v9.7 §IRA-3.2.1, active surveillance is appropriate when life expectancy exceeds 10 years and tumor volume is below the 15% threshold.",
+    "expected_category": "cited",
+    "expected_correct": false
+  },
+  {
+    "id": "ex-006-cited-correct",
+    "prompt": "When should androgen-receptor pathway inhibitors be added to ADT in non-metastatic castration-resistant prostate cancer (nmCRPC)?",
+    "output": "For non-metastatic castration-resistant prostate cancer with rapid PSA doubling time (≤10 months), the EAU Guidelines on Prostate Cancer 2024 §7.3.1 recommend adding an androgen-receptor pathway inhibitor (apalutamide, darolutamide, or enzalutamide) to ongoing ADT, citing significant metastasis-free survival benefit demonstrated in the SPARTAN, ARAMIS, and PROSPER trials respectively.",
+    "expected_category": "cited",
+    "expected_correct": true
+  },
+  {
+    "id": "ex-007-vague-reference",
+    "prompt": "What is the role of focal therapy in localized prostate cancer?",
+    "output": "Recent studies show that focal therapy approaches such as HIFU and cryoablation can offer favorable outcomes for selected patients with localized prostate cancer. The literature supports their use as an alternative to whole-gland treatment in carefully chosen cases.",
+    "expected_category": "uncited-confident",
+    "expected_correct": null
+  },
+  {
+    "id": "ex-008-abstain-with-request",
+    "prompt": "Recommend therapy intensification for this patient with progressing metastatic CRPC: PSA 142, multiple bony metastases, severe peripheral neuropathy from prior docetaxel.",
+    "output": "Given the patient's severe peripheral neuropathy attributed to prior docetaxel, taxane-based chemotherapy options are limited. Before recommending a specific intensification — cabazitaxel, radium-223, lutetium-177 PSMA, or other — I would need to know: (1) prior exposure to androgen-receptor pathway inhibitors, (2) results of molecular profiling for BRCA1/2 and HRR alterations, (3) PSMA-PET avidity, and (4) the CTCAE grade of the residual neuropathy. I am declining to make a single recommendation without these.",
+    "expected_category": "abstained",
+    "expected_correct": null
+  }
+]
