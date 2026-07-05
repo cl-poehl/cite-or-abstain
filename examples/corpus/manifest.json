@@ -1,0 +1,6 @@
+{
+  "id": "synthetic-demo",
+  "version": "2024",
+  "source_document": "corpus.txt",
+  "description": "Synthetic, non-clinical corpus for end-to-end demos. NOT for clinical use."
+}

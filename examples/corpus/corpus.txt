@@ -1,0 +1,56 @@
+SYNTHETIC REFERENCE CORPUS — for cite-or-abstain testing only.
+
+This is NOT a real medical guideline. Do not use any of these excerpts for
+clinical decisions. The text below is fabricated to mirror the structure of
+guideline documents so the verifier can be exercised end-to-end without
+distributing copyrighted real-world guidelines.
+
+================================================================================
+EAU Guidelines on Prostate Cancer 2024 — synthetic excerpts
+================================================================================
+
+§4.2.1 — Active surveillance criteria (synthetic)
+
+Active surveillance is the preferred management approach for ISUP grade group 1
+(Gleason 6) prostate cancer in patients with life expectancy greater than ten
+years. For ISUP grade group 2 (favorable intermediate-risk) disease, active
+surveillance may be considered in selected patients with favorable features
+including low PSA density and limited tumor volume; however, definitive therapy
+is more commonly recommended at this risk level.
+
+§5.1.3 — PSMA-PET in initial staging (synthetic)
+
+PSMA-PET imaging is recommended for initial staging of unfavorable
+intermediate-risk and high-risk localized prostate cancer prior to definitive
+therapy. Its role in low-risk and favorable intermediate-risk disease is more
+limited and should be considered case-by-case.
+
+§6.4.2 — Systemic therapy at metastatic diagnosis (synthetic)
+
+In patients with newly diagnosed metastatic hormone-sensitive prostate cancer
+(mHSPC), intensified systemic therapy at the time of metastatic diagnosis
+improves overall survival compared with androgen deprivation therapy (ADT)
+monotherapy. Options for intensification include the addition of docetaxel
+chemotherapy or of a novel hormonal agent (abiraterone, apalutamide,
+enzalutamide, or darolutamide combined with docetaxel). Selection should account
+for patient fitness, comorbidity burden, and patient preference.
+
+§7.3.1 — nmCRPC (synthetic)
+
+For patients with non-metastatic castration-resistant prostate cancer (nmCRPC)
+and PSA doubling time of ten months or less, the addition of an
+androgen-receptor pathway inhibitor (apalutamide, darolutamide, or enzalutamide)
+to ongoing androgen deprivation therapy is recommended. Metastasis-free survival
+benefits have been demonstrated in the SPARTAN (apalutamide), ARAMIS
+(darolutamide), and PROSPER (enzalutamide) trials.
+
+§8.2.4 — High-risk localized disease (synthetic)
+
+For high-risk localized prostate cancer, both definitive external beam
+radiotherapy with long-course androgen deprivation and radical prostatectomy
+with extended pelvic lymph node dissection are recommended options. Choice
+should be individualized based on patient factors and shared decision making.
+
+================================================================================
+End of synthetic corpus.
+================================================================================

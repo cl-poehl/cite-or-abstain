@@ -14,6 +14,8 @@ from pydantic import BaseModel
 class LLMResponse(BaseModel):
     text: str
     model: str
+    input_tokens: int | None = None
+    output_tokens: int | None = None
 
 
 class LLMBackend(ABC):
