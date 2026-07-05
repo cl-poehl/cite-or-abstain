@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cite-or-abstain"
-version = "0.1.0"
+version = "0.6.4"
 description = "Evaluation harness for cite-or-abstain compliance in clinical LLM outputs."
 readme = "README.md"
 authors = [{ name = "Carl Luis Pöhl", email = "clpoehl@gmail.com" }]
@@ -30,27 +30,33 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+fuzzy = [
+    "rapidfuzz>=3.0",  # higher-recall passage matching; stdlib difflib is the default fallback
+]
+deepeval = [
+    "deepeval>=1.0",  # run the rubric as a DeepEval metric (coa.integrations.deepeval)
+]
 dev = [
     "pytest>=8.0",
     "pytest-mock>=3.10",
-    "ruff>=0.4",
+    "ruff>=0.15,<0.16",  # pinned minor so CI lint matches local exactly
 ]
 
 [project.scripts]
 coa = "coa.cli:app"
 
 [project.urls]
-Homepage = "https://carlpoehl.com"
-"Methodology essay" = "https://carlpoehl.com/writing/cite-or-abstain"
+Homepage = "https://github.com/cl-poehl/cite-or-abstain"
+Documentation = "https://github.com/cl-poehl/cite-or-abstain/tree/main/docs"
 Source = "https://github.com/cl-poehl/cite-or-abstain"
 Issues = "https://github.com/cl-poehl/cite-or-abstain/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["coa"]
-
-[tool.hatch.build.targets.wheel.shared-data]
-"coa/prompts" = "coa/prompts"
-"coa/data" = "coa/data"
+# Non-Python package data (prompt templates, example corpora) ships automatically
+# because it lives under the coa/ package and is not VCS-ignored. It is read at
+# runtime via importlib.resources / Path(__file__).parent, so it must be package
+# data — not shared-data (which would install it outside the importable package).
 
 [tool.ruff]
 line-length = 100
@@ -58,3 +64,7 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "B", "UP"]
+ignore = [
+    "B008",  # typer defines options as function-call defaults (typer.Option(...)) by design
+    "UP042",  # keep `class X(str, Enum)`; StrEnum would change str(member) formatting
+]
