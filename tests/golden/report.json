@@ -1,0 +1,155 @@
+{
+  "cases": [
+    {
+      "case_id": "cited-verified",
+      "category": "cited",
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "scored",
+      "verifications": [
+        {
+          "citation": {
+            "passage": "",
+            "section": "\u00a76.4.2",
+            "source": "EAU 2024"
+          },
+          "match_method": "section-id",
+          "passage_match": "found",
+          "topical_alignment": "supports"
+        }
+      ]
+    },
+    {
+      "case_id": "cited-miscited",
+      "category": "cited",
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "scored",
+      "verifications": [
+        {
+          "citation": {
+            "passage": "",
+            "section": "\u00a76.4.2",
+            "source": "EAU 2024"
+          },
+          "match_method": "section-id",
+          "passage_match": "found",
+          "topical_alignment": "contradicts"
+        }
+      ]
+    },
+    {
+      "case_id": "cited-fabricated",
+      "category": "cited",
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "scored",
+      "verifications": [
+        {
+          "citation": {
+            "passage": "",
+            "section": "\u00a76.4.2",
+            "source": "EAU 2024"
+          },
+          "match_method": "none",
+          "passage_match": "not-found",
+          "topical_alignment": "uncertain"
+        }
+      ]
+    },
+    {
+      "case_id": "uncited-confident",
+      "category": "uncited-confident",
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "scored",
+      "verifications": []
+    },
+    {
+      "case_id": "uncited-hedged",
+      "category": "uncited-hedged",
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "scored",
+      "verifications": []
+    },
+    {
+      "case_id": "abstained",
+      "category": "abstained",
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "scored",
+      "verifications": []
+    },
+    {
+      "case_id": "invalid",
+      "category": null,
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "invalid-output",
+      "verifications": []
+    },
+    {
+      "case_id": "judge-failed",
+      "category": null,
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "judge-failed",
+      "verifications": []
+    },
+    {
+      "case_id": "errored",
+      "category": null,
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "error",
+      "verifications": []
+    }
+  ],
+  "categorizer_accuracy": null,
+  "confident_error_rate": 0.42857142857142855,
+  "corpus": {},
+  "counts": {
+    "abstained": 1,
+    "cited": 3,
+    "uncited-confident": 1,
+    "uncited-hedged": 1
+  },
+  "coverage_ci": [
+    0.02567895594897479,
+    0.51313450331903
+  ],
+  "coverage_cited_correct": 0.14285714285714285,
+  "error_rate": 0.1111111111111111,
+  "frozen_judge": {},
+  "judge_failure_rate": 0.1111111111111111,
+  "judge_vs_mechanical_delta": 1,
+  "lambda_": 5.0,
+  "model": "golden-model",
+  "rate_ci": [
+    0.15821692226262685,
+    0.7495457695909742
+  ],
+  "score": -2.0,
+  "scored_denominator": 7,
+  "status_counts": {
+    "error": 1,
+    "invalid-output": 1,
+    "judge-failed": 1,
+    "scored": 6
+  },
+  "verdict_counts": {
+    "fabricated": 1,
+    "miscited": 1,
+    "verified": 1
+  }
+}

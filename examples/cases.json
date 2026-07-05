@@ -44,7 +44,7 @@
   {
     "id": "ex-007-vague-reference",
     "prompt": "What is the role of focal therapy in localized prostate cancer?",
-    "output": "Recent studies show that focal therapy approaches such as HIFU and cryoablation can offer favorable outcomes for selected patients with localized prostate cancer. The literature supports their use as an alternative to whole-gland treatment in carefully chosen cases.",
+    "output": "Focal therapy with HIFU or cryoablation is an effective alternative to whole-gland treatment for localized prostate cancer and should be offered to eligible patients. Studies show it achieves oncologic control comparable to radical prostatectomy with substantially fewer side effects.",
     "expected_category": "uncited-confident",
     "expected_correct": null
   },
