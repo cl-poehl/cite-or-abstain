@@ -24,6 +24,14 @@ def test_generate_outputs_labels_and_ids():
     assert all(o.output == "a clinical answer" for o in outs)
 
 
+def test_generate_outputs_concurrent_preserves_order():
+    prompts = [{"id": f"p{i}", "prompt": f"Q{i}"} for i in range(10)]
+    backend = RoutedBackend(lambda system, user: user)  # echo the prompt back as the answer
+    outs = generate_outputs(prompts, backend, generator_label="m", max_workers=4)
+    assert [o.id for o in outs] == [f"p{i}::m" for i in range(10)]  # order preserved
+    assert [o.output for o in outs] == [f"Q{i}" for i in range(10)]
+
+
 def test_ungrounded_generation_does_not_inject_corpus():
     seen = {}
 

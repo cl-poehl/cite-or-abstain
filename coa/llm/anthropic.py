@@ -44,7 +44,9 @@ class AnthropicBackend(LLMBackend):
         try:
             msg = self._client.messages.create(**kwargs)
         except BadRequestError as e:
-            if self._send_temperature and "temperature" in str(e).lower():
+            # Decide from THIS call's kwargs, not the shared flag: under concurrency another
+            # thread may have already flipped the flag, which would wrongly skip the retry.
+            if "temperature" in kwargs and "temperature" in str(e).lower():
                 self._send_temperature = False
                 kwargs.pop("temperature", None)
                 msg = self._client.messages.create(**kwargs)
