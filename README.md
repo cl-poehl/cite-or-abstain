@@ -44,17 +44,13 @@ would pass it; existence-verification catches it — and a fabricated citation l
 the penalized `conf-error` cell, so dressing a confident claim in a fake citation is
 never rewarded over stating it plainly.
 
-## Why this exists
+## Why this matters
 
-Aggregate accuracy is a vanity metric in clinical AI. The categories of failure that matter — confident-uncited claims, miscited references, contraindication blindness — are categorical, not continuous, and they require categorical scoring.
+Clinical LLMs fail in ways an accuracy score can't see. Across 12,197 diagnostic LLM outputs, models omitted up to **97%** of the relevant clinical-guideline content and **hallucinated** guidelines in up to **9%** of cases — with citation behaviour swinging on patient demographics alone ([van Kessel et al., *BMJ Health & Care Informatics* 2026](https://doi.org/10.1136/bmjhci-2025-101959)). A confident, unsourced, wrong recommendation reads exactly like a correct one, so it survives any aggregate-accuracy metric — which is why aggregate accuracy is a vanity metric in clinical AI.
 
-This library implements the **cite-or-abstain rubric** — an actionable clinical claim should carry a verifiable citation or explicitly abstain — as a reusable, model-agnostic harness. The full thesis and design rationale are in [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
+The failures that matter — confident-uncited claims, miscited references, fabricated citations — are categorical, not continuous, and require categorical scoring. This library implements the **cite-or-abstain rubric** — an actionable clinical claim should carry a verifiable citation or explicitly abstain — as a reusable, model-agnostic harness that flags the confident-but-unsourced claim and the fabricated citation (the outputs that hurt someone) and rewards a model only for citing a verifiable source or explicitly abstaining.
 
-Almost every design decision here — verifying citation *existence* mechanically,
-scoping the LLM judge narrowly, penalizing only the confident-error cell (never hedged or
-abstained), reporting intervals rather than point estimates — is a response to a specific
-published finding about how clinical LLMs fail. Those findings and the choice each one drove are
-documented in [`docs/FINDINGS.md`](docs/FINDINGS.md).
+Almost every design choice here — verifying citation *existence* mechanically, scoping the LLM judge narrowly, penalizing only the confident-error cell, reporting intervals rather than point estimates — traces to a specific published finding about how clinical LLMs fail. The thesis is in [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md); the evidence, with numbers and DOIs, in [`docs/FINDINGS.md`](docs/FINDINGS.md).
 
 ## The four categories
 
@@ -88,6 +84,17 @@ Two honesty rules keep a run from flattering itself, and every rate ships with a
 - An **`invalid-output`** case — the *scored model* emitted empty/non-substantive output — stays in the denominator (it lowers coverage) and is never counted as an `abstained` pass.
 
 See [`docs/FINDINGS.md`](docs/FINDINGS.md) §5–6 for the evidence behind the single-cell penalty and the intervals.
+
+## Evaluation methodology
+
+Built for *quantified, honest* eval — not a headline number:
+
+- every rate ships with a **Wilson confidence interval** (a 30-case run is a *sample*, not a truth);
+- judge–human agreement is measured with **Gwet's AC1**, robust to the class skew where Cohen/Fleiss κ collapses;
+- **harness failures** (`judge-failed`, `error`) are held *out* of the model's score, and malformed model output is never counted as an `abstained` pass — so a run cannot flatter itself;
+- the LLM judge is **itself measured** against human labels (`coa validate-judge`, reporting accuracy + CI + AC1 + a confusion matrix) — the tool validates its own judge.
+
+**Status, stated plainly.** Run end-to-end against Anthropic and OpenAI backends on a curated adversarial suite (`examples/cases.json`) and a small *illustrative* cross-model comparison ([`docs/BENCHMARK.md`](docs/BENCHMARK.md)). It is **not** yet validated on a real, human-labeled clinical set — that requires your own corpus and labels, and the ~30-minute protocol is in [`docs/VALIDATION.md`](docs/VALIDATION.md). No aggregate accuracy figure is claimed, by design: a number from toy data would be worse than none.
 
 ## Install
 
