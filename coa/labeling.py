@@ -81,6 +81,7 @@ def generate_outputs(
     max_tokens: int = 600,
     temperature: float = 0.7,
     corpus: str | Corpus | None = None,
+    max_workers: int = 1,
 ) -> list[GeneratedOutput]:
     """Ask a model each clinical prompt directly and collect its answer.
 
@@ -90,24 +91,28 @@ def generate_outputs(
     If `corpus` is given, generation is *grounded*: the model is told to cite only that
     corpus. Its citations are then checkable against the same corpus, so the resulting set
     validates the verifier/coverage half of the pipeline with no `expected_correct` labels.
+
+    `max_workers > 1` generates concurrently (I/O-bound); results stay in prompt order.
     """
     label = generator_label or backend.name
     corpus_text = resolve_corpus_text(corpus)
     system = (_GROUNDED_PREFIX + corpus_text) if corpus_text else _GENERATOR_SYSTEM
-    out: list[GeneratedOutput] = []
-    for p in prompts:
+
+    def _one(p: dict) -> GeneratedOutput:
         resp = backend.complete(
-            system=system,
-            user=p["prompt"],
-            max_tokens=max_tokens,
-            temperature=temperature,
+            system=system, user=p["prompt"], max_tokens=max_tokens, temperature=temperature
         )
-        out.append(
-            GeneratedOutput(
-                id=f"{p['id']}::{label}", prompt=p["prompt"], output=resp.text, generator=label
-            )
+        return GeneratedOutput(
+            id=f"{p['id']}::{label}", prompt=p["prompt"], output=resp.text, generator=label
         )
-    return out
+
+    if max_workers <= 1:
+        return [_one(p) for p in prompts]
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        return list(pool.map(_one, prompts))
 
 
 def detect_citation(text: str) -> bool:

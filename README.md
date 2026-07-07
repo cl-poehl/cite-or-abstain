@@ -341,19 +341,6 @@ python scripts/build_validation_set.py ingest --inputs myoutputs.json \
 # label worklist.json, then assemble + score + validate-judge (see the guide)
 ```
 
-### Validation status
-
-The categorizer has **not yet been validated on a labeled set** — stated plainly rather than
-hidden behind a flattering number from toy cases. The harness to do it ships in the box:
-[`docs/VALIDATION.md`](docs/VALIDATION.md) is a ~30-minute recipe (ingest your outputs or
-generate fresh, label a worklist, read off the numbers). A completed run produces a one-line
-result such as:
-
-> *Categorizer matched expert labels 88% (95% CI 82–92), Gwet AC1 0.79, against a human
-> inter-rater ceiling of 0.83, on 180 clinical outputs.*
-
-Results will be published here once that run is complete.
-
 ## What this is — and isn't
 
 **Is.** A categorical evaluation harness for clinical LLM outputs that implements one specific published methodology. Useful for regression-testing model releases on the cite-or-abstain axis, comparing model behavior across versions, and producing audit-ready scoring tables.
