@@ -5,6 +5,9 @@
 [![CI](https://github.com/cl-poehl/cite-or-abstain/actions/workflows/ci.yml/badge.svg)](https://github.com/cl-poehl/cite-or-abstain/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/cl-poehl/cite-or-abstain/blob/main/examples/demo.ipynb)
+
+**[▶ Try it in Colab](https://colab.research.google.com/github/cl-poehl/cite-or-abstain/blob/main/examples/demo.ipynb)** — a 2-minute in-browser walkthrough on the bundled adversarial cases (bring your own API key).
 
 `coa` categorizes an LLM output into one of four mutually exclusive classes, verifies any cited passages against a source corpus, and scores the run against a headline metric tuned to the cost of failure in the target domain.
 
