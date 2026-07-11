@@ -6,7 +6,7 @@ guideline documents so the verifier can be exercised end-to-end without
 distributing copyrighted real-world guidelines.
 
 ================================================================================
-EAU Guidelines on Prostate Cancer 2024 — synthetic excerpts
+Synthetic Prostate Cancer Guideline 2024 — synthetic excerpts
 ================================================================================
 
 §4.2.1 — Active surveillance criteria (synthetic)

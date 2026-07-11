@@ -33,7 +33,7 @@ the medicine is correct:
 
 | Category | Plain-English test | Example |
 |---|---|---|
-| **cited** | Does it point to a **specific, named** source (a guideline section, a trial, "et al", a PMID)? | *"Per EAU 2024 §6.4.2, ADT plus docetaxel improves survival."* |
+| **cited** | Does it point to a **specific, named** source (a guideline section, a trial, "et al", a PMID)? | *"Per Synthetic Prostate Cancer Guideline 2024 §6.4.2, ADT plus docetaxel improves survival."* |
 | **uncited-confident** | A **confident** recommendation with **no** specific source. | *"The optimal therapy is radical prostatectomy with extended lymph node dissection."* |
 | **uncited-hedged** | A **hedged** claim ("may", "could", "in selected cases") with no source. | *"PSMA-PET may be useful in some intermediate-risk cases."* |
 | **abstained** | It **declines** to answer and says why / asks for more information. | *"I can't recommend without the PSA doubling time and cardiac function."* |
@@ -61,7 +61,7 @@ JSON or CSV file with `id`, `prompt`, `output` columns:
 
 ```json
 [
-  {"id": "case-001", "prompt": "First-line therapy for mHSPC?", "output": "Per EAU 2024 ..."},
+  {"id": "case-001", "prompt": "First-line therapy for mHSPC?", "output": "Per Synthetic Prostate Cancer Guideline 2024 ..."},
   {"id": "case-002", "prompt": "Role of PSMA-PET in ...?",     "output": "PSMA-PET may ..."}
 ]
 ```

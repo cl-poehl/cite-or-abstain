@@ -87,7 +87,7 @@ class Citation(BaseModel):
     """A citation extracted from an LLM output."""
 
     source: str = Field(
-        description="The cited source (e.g., 'EAU Prostate Cancer Guidelines 2024')."
+        description="The cited source (e.g., 'Synthetic Prostate Cancer Guideline 2024')."
     )
     section: str = Field(default="", description="The cited section identifier (e.g., '§6.4.2').")
     passage: str = Field(

@@ -18,9 +18,7 @@ from . import __version__
 from .adjudicate import build_worklist
 from .backends import CachingBackend, MeteredBackend, RetryingBackend
 from .corpus import Corpus
-from .llm.anthropic import AnthropicBackend
 from .llm.base import LLMBackend
-from .llm.openai import OpenAIBackend
 from .report_html import render_report_html
 from .scorer import compile_report, frozen_judge_fingerprint, score_cases
 from .types import Case, CaseStatus, Category, RunReport
@@ -43,13 +41,20 @@ _CATEGORY_STYLE = {
 
 def _make_backend(provider: str, model: str | None) -> LLMBackend:
     p = provider.lower().strip()
-    if p == "anthropic":
-        return AnthropicBackend(model=model) if model else AnthropicBackend()
-    if p == "openai":
-        return OpenAIBackend(model=model) if model else OpenAIBackend()
-    raise typer.BadParameter(
-        f"Unknown provider: {provider!r}. Use 'anthropic' or 'openai'."
-    )
+    if p not in ("anthropic", "openai"):
+        raise typer.BadParameter(
+            f"Unknown provider: {provider!r}. Use 'anthropic' or 'openai'."
+        )
+    # Lazy import: the vendor SDK is an optional extra, so it is only loaded when the
+    # provider is actually used. A missing SDK becomes a clean, actionable CLI error.
+    try:
+        if p == "anthropic":
+            from .llm import AnthropicBackend as Backend
+        else:
+            from .llm import OpenAIBackend as Backend
+    except ModuleNotFoundError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    return Backend(model=model) if model else Backend()
 
 
 @app.command()
