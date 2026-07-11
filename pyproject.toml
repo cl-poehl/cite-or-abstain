@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cite-or-abstain"
-version = "0.6.4"
+version = "0.7.0"
 description = "Evaluation harness for cite-or-abstain compliance in clinical LLM outputs."
 readme = "README.md"
 authors = [{ name = "Carl Luis Pöhl", email = "clpoehl@gmail.com" }]
@@ -22,14 +22,24 @@ classifiers = [
 ]
 
 dependencies = [
+    # Core is SDK-free: the library and its deterministic tiers need no vendor SDK, so an
+    # on-prem / library-only deployment stays light. Install a judge backend via an extra.
     "pydantic>=2.7",
-    "anthropic>=0.40",
-    "openai>=1.50",
     "rich>=13.0",
     "typer>=0.12",
 ]
 
 [project.optional-dependencies]
+anthropic = [
+    "anthropic>=0.40",  # AnthropicBackend judge
+]
+openai = [
+    "openai>=1.50",  # OpenAIBackend judge; also any OpenAI-compatible on-prem server (base_url)
+]
+all = [
+    "anthropic>=0.40",
+    "openai>=1.50",
+]
 fuzzy = [
     "rapidfuzz>=3.0",  # higher-recall passage matching; stdlib difflib is the default fallback
 ]
@@ -37,6 +47,8 @@ deepeval = [
     "deepeval>=1.0",  # run the rubric as a DeepEval metric (coa.integrations.deepeval)
 ]
 dev = [
+    "anthropic>=0.40",  # both bundled backends are imported by the test suite
+    "openai>=1.50",
     "pytest>=8.0",
     "pytest-mock>=3.10",
     "ruff>=0.15,<0.16",  # pinned minor so CI lint matches local exactly

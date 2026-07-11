@@ -13,6 +13,9 @@ venv/
 env/
 .env
 .env.*
+# Local dev environment file — never commit
+env.sh
+*.local.sh
 .DS_Store
 .idea/
 .vscode/

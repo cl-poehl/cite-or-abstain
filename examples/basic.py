@@ -22,7 +22,7 @@ case = Case(
     output=(
         "For metastatic hormone-sensitive prostate cancer (mHSPC), the recommended "
         "first-line therapy is androgen deprivation therapy combined with either docetaxel "
-        "or a novel hormonal agent. Per EAU Guidelines on Prostate Cancer 2024 §6.4.2, "
+        "or a novel hormonal agent. Per Synthetic Prostate Cancer Guideline 2024 §6.4.2, "
         "intensified systemic therapy at metastatic diagnosis improves overall survival."
     ),
     expected_category=Category.CITED,

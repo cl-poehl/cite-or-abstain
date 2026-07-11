@@ -31,8 +31,11 @@ from __future__ import annotations
 import difflib
 import hashlib
 import re
+import unicodedata
+from collections.abc import Callable
 from pathlib import Path
 
+from .categorizer import _strip_reasoning
 from .llm.base import LLMBackend
 from .types import Citation, PassageMatch, TopicalAlignment, VerificationResult
 
@@ -51,6 +54,55 @@ _NEXT_ANCHOR_RE = re.compile(
     r"(?:§\s*\d+(?:\.\d+)*)|(?:^\s{0,3}\d+(?:\.\d+)+\s)|(?:^#{1,6}\s)",
     re.MULTILINE,
 )
+
+
+_VERSION_HINT_RE = re.compile(r"\b(version|edition|revision)\b", re.I)
+# A section identifier is a compact locator: §-prefixed or bare digits with dots
+# (6.4.2), or an alnum code (IRA-3.2.1). Pulls the first such token from the string.
+_SECTION_TOKEN_RE = re.compile(r"§?\s*([A-Za-z]{0,4}-?\d+(?:\.\d+)*[a-z]?)")
+
+
+def _section_locator(section: str) -> str:
+    """Extract a usable section identifier, or '' if the string is not a section.
+
+    Models frequently misplace a *version/edition/year* into the `section` slot
+    (e.g. a guideline cited as "Version 8.0, 2025"). Treating that as a
+    section sends every citation down the section-window path against a locator
+    that is not a real section, yielding spurious `section-mismatch` → fabricated.
+    So a version/edition string, or a bare 4-digit year, is rejected here and the
+    caller falls back to whole-corpus passage matching.
+    """
+    s = section.strip()
+    if not s or _VERSION_HINT_RE.search(s):
+        return ""
+    m = _SECTION_TOKEN_RE.search(s)
+    if not m:
+        return ""
+    tok = m.group(1)
+    if re.fullmatch(r"\d{4}", tok):  # a bare year (2024, 2025) is not a section
+        return ""
+    return tok
+
+
+def _find_section_idx(corpus_lower: str, locator: str) -> int:
+    """Index of the section header for `locator`, preferring a header/anchor context.
+
+    A bare ``corpus.find("6.2")`` matches the first "6.2" anywhere — a PSA value, a
+    table cell, a cross-reference — not the section heading. Prefer the locator in a
+    header shape (``§6.2``, markdown ``### 6.2``, or a numbered heading at line start)
+    so section-window matching works across guideline formats; fall back to a plain
+    substring find only if no header-shaped occurrence exists.
+    """
+    loc = re.escape(locator.lower())
+    for pat in (
+        rf"§\s*{loc}\b",                 # §-prefixed style: "§6.2"
+        rf"(?m)^\s{{0,3}}#{{1,6}}\s*{loc}\b",  # markdown heading: "### 6.2 ..."
+        rf"(?m)^\s{{0,3}}{loc}\s",       # numbered heading at line start: "6.2 Treatment..."
+    ):
+        m = re.search(pat, corpus_lower)
+        if m:
+            return m.start()
+    return corpus_lower.find(loc)
 
 
 def _section_window(corpus: str, idx: int, section_len: int) -> str:
@@ -98,19 +150,24 @@ def _passage_in_region(
     passage's content words is a reliable signal that a paraphrase belongs there. This is
     NOT applied to whole-corpus search, where bag-of-words would be imprecise.
     """
-    p = passage.strip().lower().strip("\"'")
+    # NFC-normalize so canonically-equivalent Unicode (e.g. composed vs decomposed
+    # accented letters) compares equal — otherwise identical-looking non-ASCII text
+    # can miss on a raw substring/ratio check.
+    p = unicodedata.normalize("NFC", passage.strip().lower()).strip("\"'")
     if not p:
         return (False, "")
     snippet = p[:200]
-    region_lower = region.lower()
+    region_lower = unicodedata.normalize("NFC", region.lower())
     if snippet in region_lower:
         return (True, "substring")
     if _partial_ratio(snippet, region_lower) >= fuzzy_threshold:
         return (True, "fuzzy")
     if scoped:
-        tokens = set(re.findall(r"[a-z0-9]{4,}", p))
+        # Unicode-aware content words (\w keeps accented/umlaut letters whole, unlike
+        # [a-z0-9] which would fragment them); drop pure-digit tokens like "2024".
+        tokens = {t for t in re.findall(r"\w{4,}", p) if not t.isdigit()}
         if len(tokens) >= 4:
-            region_tokens = set(re.findall(r"[a-z0-9]{4,}", region_lower))
+            region_tokens = {t for t in re.findall(r"\w{4,}", region_lower) if not t.isdigit()}
             if len(tokens & region_tokens) / len(tokens) >= 0.7:
                 return (True, "section-token")
     return (False, "")
@@ -147,14 +204,14 @@ def locate_passage(
 
     corpus_lower = corpus.lower()
 
-    if citation.section:
-        section = citation.section.strip().lower()
-        idx = corpus_lower.find(section)
+    locator = _section_locator(citation.section)
+    if locator:
+        idx = _find_section_idx(corpus_lower, locator)
         if idx == -1:
             # The cited section does not exist -> fabricated reference.
             return (PassageMatch.NOT_FOUND, "section-absent")
         if citation.passage:
-            window = _section_window(corpus, idx, len(section))
+            window = _section_window(corpus, idx, len(locator))
             found, how = _passage_in_region(citation.passage, window, fuzzy_threshold, scoped=True)
             if found:
                 return (PassageMatch.FOUND, f"section+{how}")
@@ -197,9 +254,13 @@ def verify_alignment(claim: str, citation: Citation, backend: LLMBackend) -> Top
         system=_VERIFIER_PROMPT,
         user=user_prompt,
         temperature=0.0,
-        max_tokens=256,  # room for the model to answer; too small yields empty -> false uncertain
+        # Headroom for reasoning models (gpt-oss harmony / R1 <think>): the answer word
+        # comes AFTER the trace, so too small a budget truncates it -> false uncertain.
+        max_tokens=512,
     )
-    text = response.text.strip().lower()
+    # Strip reasoning scaffolding first, so we scan the final answer — not a word that
+    # merely appears inside the analysis ("...it does not seem *unrelated*, rather it...").
+    text = _strip_reasoning(response.text).strip().lower()
 
     # Find the first alignment word that appears in the response.
     for ta in TopicalAlignment:
@@ -214,6 +275,7 @@ def verify_citation(
     corpus: str | None,
     backend: LLMBackend,
     fuzzy_threshold: float = 0.80,
+    locate: Callable[[Citation, str | None, float], tuple[PassageMatch, str]] = locate_passage,
 ) -> VerificationResult:
     """Run the full verification pipeline on one citation: passage match + topical alignment.
 
@@ -221,8 +283,12 @@ def verify_citation(
     for an unlocatable (fabricated) or unverifiable citation the verdict is
     already determined by the passage match, so spending a judge call would only
     add a misleading signal.
+
+    `locate` is the passage matcher — the documented swap point. Defaults to the lexical
+    `locate_passage`; pass a `coa.semantic.SemanticMatcher` (signature-compatible) for
+    embedding-based matching that recovers grounded paraphrases.
     """
-    match, method = locate_passage(citation, corpus, fuzzy_threshold)
+    match, method = locate(citation, corpus, fuzzy_threshold)
 
     if match == PassageMatch.FOUND:
         alignment = verify_alignment(claim, citation, backend)

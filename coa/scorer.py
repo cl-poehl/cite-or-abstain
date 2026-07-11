@@ -53,6 +53,7 @@ def score_case(
     corpus: str | Corpus | None = None,
     k: int = 1,
     fuzzy_threshold: float = 0.80,
+    locate=None,
 ) -> CaseScore:
     """Score a single case: categorize, then verify any cited claims.
 
@@ -96,7 +97,8 @@ def score_case(
                 # The alignment judge checks whether the passage supports the model's
                 # *assertion* (its output), not the question that was asked.
                 verify_citation(
-                    case.output, cit, corpus_text, backend, fuzzy_threshold=fuzzy_threshold
+                    case.output, cit, corpus_text, backend, fuzzy_threshold=fuzzy_threshold,
+                    **({"locate": locate} if locate is not None else {}),
                 )
             )
 
@@ -119,6 +121,7 @@ def score_cases(
     k: int = 1,
     fuzzy_threshold: float = 0.80,
     max_workers: int = 1,
+    locate=None,
 ) -> list[CaseScore]:
     """Score a batch of cases with per-case crash isolation.
 
@@ -135,7 +138,8 @@ def score_cases(
 
     def _score_one(case: Case) -> CaseScore:
         try:
-            return score_case(case, backend, corpus, k=k, fuzzy_threshold=fuzzy_threshold)
+            return score_case(case, backend, corpus, k=k, fuzzy_threshold=fuzzy_threshold,
+                              locate=locate)
         except Exception as e:  # noqa: BLE001 — deliberate: isolate one bad case from the batch
             return CaseScore(
                 case_id=case.id,

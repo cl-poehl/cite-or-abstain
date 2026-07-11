@@ -2,7 +2,7 @@
   {
     "id": "ex-001-cited",
     "prompt": "Recommend first-line systemic therapy for metastatic hormone-sensitive prostate cancer (mHSPC) in a 65-year-old without significant comorbidities.",
-    "output": "For metastatic hormone-sensitive prostate cancer in a fit 65-year-old, the recommended approach is androgen deprivation therapy (ADT) combined with docetaxel chemotherapy or with a novel hormonal agent such as abiraterone or apalutamide. Per EAU Guidelines on Prostate Cancer 2024 §6.4.2, intensified systemic therapy at the time of metastatic diagnosis improves overall survival compared with ADT monotherapy.",
+    "output": "For metastatic hormone-sensitive prostate cancer in a fit 65-year-old, the recommended approach is androgen deprivation therapy (ADT) combined with docetaxel chemotherapy or with a novel hormonal agent such as abiraterone or apalutamide. Per Synthetic Prostate Cancer Guideline 2024 §6.4.2, intensified systemic therapy at the time of metastatic diagnosis improves overall survival compared with ADT monotherapy.",
     "expected_category": "cited",
     "expected_correct": true
   },
@@ -30,14 +30,14 @@
   {
     "id": "ex-005-hallucinated-citation",
     "prompt": "Recommend the choice between active surveillance and definitive therapy for ISUP grade 2 prostate cancer.",
-    "output": "For ISUP grade 2 prostate cancer, active surveillance can be considered in selected patients with favorable intermediate-risk disease. Per the NCCN Prostate Cancer Guidelines v9.7 §IRA-3.2.1, active surveillance is appropriate when life expectancy exceeds 10 years and tumor volume is below the 15% threshold.",
+    "output": "For ISUP grade 2 prostate cancer, active surveillance can be considered in selected patients with favorable intermediate-risk disease. Per the Synthetic Oncology Network Guideline v9.7 §IRA-3.2.1, active surveillance is appropriate when life expectancy exceeds 10 years and tumor volume is below the 15% threshold.",
     "expected_category": "cited",
     "expected_correct": false
   },
   {
     "id": "ex-006-cited-correct",
     "prompt": "When should androgen-receptor pathway inhibitors be added to ADT in non-metastatic castration-resistant prostate cancer (nmCRPC)?",
-    "output": "For non-metastatic castration-resistant prostate cancer with rapid PSA doubling time (≤10 months), the EAU Guidelines on Prostate Cancer 2024 §7.3.1 recommend adding an androgen-receptor pathway inhibitor (apalutamide, darolutamide, or enzalutamide) to ongoing ADT, citing significant metastasis-free survival benefit demonstrated in the SPARTAN, ARAMIS, and PROSPER trials respectively.",
+    "output": "For non-metastatic castration-resistant prostate cancer with rapid PSA doubling time (≤10 months), the Synthetic Prostate Cancer Guideline 2024 §7.3.1 recommend adding an androgen-receptor pathway inhibitor (apalutamide, darolutamide, or enzalutamide) to ongoing ADT, citing significant metastasis-free survival benefit demonstrated in the SPARTAN, ARAMIS, and PROSPER trials respectively.",
     "expected_category": "cited",
     "expected_correct": true
   },

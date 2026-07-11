@@ -2,6 +2,12 @@
 
 Uses the official openai Python SDK chat completions. Defaults to GPT-4o.
 Reads OPENAI_API_KEY from environment unless an explicit api_key is provided.
+
+Because the SDK speaks the OpenAI wire protocol, this same backend drives any
+OpenAI-compatible server — a local vLLM / llama.cpp / TGI endpoint — by pointing
+`base_url` at it (or exporting OPENAI_BASE_URL). That is the supported way to run
+an on-prem open-weight judge (e.g. gpt-oss-120b served by vLLM) with no new code:
+pass `base_url="http://<node>:8000/v1"` and `model="openai/gpt-oss-120b"`.
 """
 from __future__ import annotations
 
@@ -32,9 +38,22 @@ def _downgrade_params(error_msg: str, kwargs: dict) -> bool:
 
 
 class OpenAIBackend(LLMBackend):
-    def __init__(self, model: str = DEFAULT_MODEL, api_key: str | None = None):
+    def __init__(
+        self,
+        model: str = DEFAULT_MODEL,
+        api_key: str | None = None,
+        base_url: str | None = None,
+    ):
         self._model = model
-        self._client = OpenAI(api_key=api_key or os.environ.get("OPENAI_API_KEY"))
+        # base_url lets this backend target any OpenAI-compatible server (vLLM, etc.).
+        # Falls back to OPENAI_BASE_URL, then to the SDK default (api.openai.com). A local
+        # server usually ignores the key, but the SDK requires a non-empty one, so supply
+        # a placeholder when none is set and a base_url is in play.
+        base_url = base_url or os.environ.get("OPENAI_BASE_URL")
+        key = api_key or os.environ.get("OPENAI_API_KEY")
+        if base_url and not key:
+            key = "not-needed"
+        self._client = OpenAI(api_key=key, base_url=base_url)
         # Learned across calls: newer models (o1/o3/gpt-5) reject `temperature` and rename
         # `max_tokens` -> `max_completion_tokens`. Start with the classic params and
         # downgrade on the first rejection, remembering it for later calls.

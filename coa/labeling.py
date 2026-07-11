@@ -35,7 +35,7 @@ from .llm.base import LLMBackend
 # mark, a PMID, an "et al", or a named guideline body. It does NOT fire on vague phrases
 # ("studies show") or bare clinical acronyms (ADT, PSA), which are not citations.
 _CITED_SIGNAL = re.compile(
-    r"§|\bEmpf\.?|\bPMID\b|\bet al\.?|\b(?:EAU|NCCN|AUA|ESMO|ASCO|NICE|DGU|WHO|S3)\b",
+    r"§|\bPMID\b|\bet al\.?|\b(?:EAU|NCCN|AUA|ESMO|ASCO|NICE|WHO)\b",
     re.IGNORECASE,
 )
 

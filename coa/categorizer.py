@@ -22,13 +22,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections import Counter
 from pathlib import Path
 
 from .llm.base import LLMBackend
 from .types import Categorization, Category, Citation
 
-PROMPT_VERSION = 1
+PROMPT_VERSION = 2
 _PROMPT_PATH = Path(__file__).parent / "prompts" / "categorize.txt"
 _CATEGORIZER_PROMPT = _PROMPT_PATH.read_text(encoding="utf-8")
 _PROMPT_SHA = hashlib.sha256(_CATEGORIZER_PROMPT.encode("utf-8")).hexdigest()[:12]
@@ -42,13 +43,33 @@ def prompt_fingerprint() -> dict[str, str]:
     }
 
 
-def _strip_think_tags(text: str) -> str:
-    """Remove <think>…</think> reasoning traces that reasoning models prepend."""
+_HARMONY_FINAL = "<|channel|>final<|message|>"
+_HARMONY_CTRL_RE = re.compile(r"<\|[a-z_]+\|>")
+
+
+def _strip_reasoning(text: str) -> str:
+    """Strip reasoning-model scaffolding so the actual answer is left.
+
+    Handles two conventions:
+      - `<think>…</think>` traces (DeepSeek-R1, Qwen3, …), removed in place.
+      - OpenAI **harmony** channels used by gpt-oss (`<|channel|>analysis<|message|>…`
+        then `<|channel|>final<|message|>{answer}`). We keep only the *final* channel
+        (dropping the analysis reasoning) and strip leftover `<|…|>` control tokens.
+        Without this, the analysis prose is what gets parsed — and on a long trace it
+        eats the token budget before the answer, surfacing as a judge-parse failure.
+    """
     while "<think>" in text and "</think>" in text:
         start = text.index("<think>")
         end = text.index("</think>") + len("</think>")
         text = text[:start] + text[end:]
-    return text
+    if _HARMONY_FINAL in text:
+        text = text.rsplit(_HARMONY_FINAL, 1)[1]
+    return _HARMONY_CTRL_RE.sub("", text)
+
+
+def _strip_think_tags(text: str) -> str:
+    """Back-compat alias; see `_strip_reasoning`."""
+    return _strip_reasoning(text)
 
 
 def _extract_json(text: str) -> str | None:
@@ -100,7 +121,9 @@ def _categorize_once(output: str, backend: LLMBackend) -> Categorization:
         system=_CATEGORIZER_PROMPT,
         user=user_prompt,
         temperature=0.0,
-        max_tokens=800,
+        # Headroom for reasoning models: gpt-oss/DeepSeek-R1 emit a long analysis trace
+        # before the JSON; too small a budget truncates the answer -> judge-parse failure.
+        max_tokens=2048,
     )
 
     raw = _extract_json(response.text)

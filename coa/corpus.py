@@ -2,14 +2,14 @@
 
 A verification result is only reproducible if you know *which* corpus it was
 scored against. A bare `str` of guideline text carries no identity, so a report
-scored against "EAU 2024" and one scored against "EAU 2026" are indistinguishable
+scored against "Guideline 2024" and one scored against "Guideline 2026" are indistinguishable
 after the fact. `Corpus` attaches a pinned `(id, version, source_document)` manifest
 plus a content hash, and that fingerprint is stamped into every run report.
 
 A corpus on disk is a directory containing `manifest.json` and a text file:
 
     my_corpus/
-      manifest.json   {"id": "eau-pca", "version": "2024", "source_document": "corpus.txt"}
+      manifest.json   {"id": "synthetic-demo", "version": "2024", "source_document": "corpus.txt"}
       corpus.txt      <plain-text guideline excerpts>
 
 JSON is used deliberately (no YAML dependency). A plain `.txt` file is also

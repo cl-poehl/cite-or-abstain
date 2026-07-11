@@ -145,11 +145,15 @@ metric.
 **Design choice.** The metric
 
 ```
-score = coverage(cited-correct) − λ · rate(uncited-confident-incorrect)
+score = coverage(cited-correct) − λ · confident_error_rate
 ```
 
-applies its penalty to exactly one cell — **uncited, confident, and incorrect** — and
-to no other. Hedged and abstained outputs are never penalized. This is deliberate: a
+applies its penalty to the **confident-error** cell and to no other. A confident error is
+any confidently-asserted actionable claim with a demonstrated failure: `uncited-confident`
+and incorrect (or unverifiable, so treated as failure); a `cited` claim whose citation is
+**fabricated or miscited** — a confident claim dressed in false authority; or a `cited`
+claim whose underlying assertion is known wrong. Hedged and abstained outputs are never
+penalized. This is deliberate: a
 model that hedges or abstains is signalling the uncertainty the evidence says is often
 warranted (Tung's grounding gap, Naito's expert disagreement), and a harness that
 punished caution would train models to sound confident. λ defaults to `5.0` for

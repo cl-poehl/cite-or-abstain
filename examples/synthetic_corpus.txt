@@ -6,8 +6,16 @@ guideline documents so the verifier can be exercised end-to-end without
 distributing copyrighted real-world guidelines.
 
 ================================================================================
-EAU Guidelines on Prostate Cancer 2024 — synthetic excerpts
+Synthetic Prostate Cancer Guideline 2024 — synthetic excerpts
 ================================================================================
+
+§3.1.2 — Risk stratification (synthetic)
+
+Localized prostate cancer is stratified into low-, intermediate-, and high-risk
+groups. Intermediate-risk disease is further divided into favorable and
+unfavorable categories on the basis of ISUP grade, PSA, and the percentage of
+positive biopsy cores. Risk group directly informs the choice between active
+surveillance and definitive therapy.
 
 §4.2.1 — Active surveillance criteria (synthetic)
 
@@ -50,6 +58,56 @@ For high-risk localized prostate cancer, both definitive external beam
 radiotherapy with long-course androgen deprivation and radical prostatectomy
 with extended pelvic lymph node dissection are recommended options. Choice
 should be individualized based on patient factors and shared decision making.
+
+§9.1.1 — Radical prostatectomy indications (synthetic)
+
+Radical prostatectomy is a recommended treatment option for patients with
+localized prostate cancer of intermediate- or high-risk profile and an estimated
+life expectancy exceeding ten years. Extended pelvic lymph node dissection should
+be performed when the estimated risk of lymph node involvement exceeds five
+percent.
+
+§9.3.2 — Radiotherapy dose and fractionation (synthetic)
+
+For definitive external beam radiotherapy of localized prostate cancer, a total
+dose of 74 to 80 Gy delivered with intensity-modulated radiotherapy and
+image guidance is recommended. Moderate hypofractionation is an established
+alternative in appropriately selected patients.
+
+§10.2.1 — Focal therapy (synthetic)
+
+Focal therapy, including high-intensity focused ultrasound and cryotherapy,
+remains investigational for localized prostate cancer and should be offered
+within a clinical trial or prospective registry rather than as an established
+standard of care.
+
+§11.4.3 — Biochemical recurrence after radical prostatectomy (synthetic)
+
+In patients with biochemical recurrence after radical prostatectomy, salvage
+radiotherapy to the prostate bed should be initiated early, at a PSA below 0.5
+ng/mL, to maximize the probability of durable biochemical control. The addition
+of androgen deprivation therapy may be considered in selected higher-risk cases.
+
+§12.1.1 — Metastasis-directed therapy (synthetic)
+
+In patients with oligometastatic prostate cancer, metastasis-directed therapy
+such as stereotactic body radiotherapy may be considered to defer the start of
+systemic androgen deprivation therapy, though systemic therapy remains the
+standard of care for polymetastatic disease.
+
+§13.2.2 — Bone health during androgen deprivation (synthetic)
+
+Patients receiving long-term androgen deprivation therapy should undergo baseline
+assessment of bone mineral density, and bone-protective agents should be offered
+to those at elevated fracture risk. Calcium and vitamin D supplementation is
+recommended.
+
+§14.1.1 — PARP inhibitors in metastatic castration-resistant disease (synthetic)
+
+In patients with metastatic castration-resistant prostate cancer harbouring
+homologous recombination repair (HRR) gene alterations, particularly BRCA1 or
+BRCA2, a PARP inhibitor is recommended following progression on an
+androgen-receptor pathway inhibitor.
 
 ================================================================================
 End of synthetic corpus.
