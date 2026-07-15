@@ -46,8 +46,9 @@ categorizer   1.000   (accuracy vs expected_category labels)
 score = coverage − λ·conf-error = 0.250 − 5.0·0.375 = −1.625
 ```
 
-*(Real output on the bundled cases; the labeled example set scores the categorizer at
-1.000, so the `categorizer` line shows the accuracy instead of a `—`. `coa report`
+*(Real output on the eight bundled cases — a smoke test, not a benchmark; the labeled
+example set scores the categorizer at 1.000 on this clean synthetic set, so the
+`categorizer` line shows the accuracy instead of a `—`. `coa report`
 re-renders this run as HTML and `coa adjudicate` turns it into a review worklist — both
 with no API key; see [Quick start](#quick-start).)*
 
@@ -430,25 +431,36 @@ This is deliberately not pre-baked with a flattering headline number: a high sco
 handful of toy cases is meaningless, so it warns below ~30 labeled cases. To earn trust
 in the judge, run it on a real, human-labeled, held-out set and report the band.
 
-### Validation results (illustrative — synthetic data)
+### Functional demonstration on the bundled synthetic set
 
-A bundled labeled set — `examples/synthetic_validation_set.json`, **36 cases** across all
-four categories, including adversarial boundaries (named-guideline-without-section,
-paraphrase, fabricated section, wrong-section miscite) — lets you reproduce judge
-validation end-to-end with **no clinical data**. Scoring a frontier judge against these
-author labels (reproduced with the two commands below):
+`examples/synthetic_validation_set.json` is **36 author-labeled cases** across all four
+categories — including the adversarial boundaries (named-guideline-without-section,
+paraphrase, fabricated section, wrong-section miscite) — scored against the **13-section**
+`synthetic_corpus.txt`. It exists to reproduce the *whole* validate-judge pipeline
+end-to-end with **no clinical data**. Read it as a check that the **harness is correct — not
+that the judge is good.**
 
 | Judge | Accuracy (95% CI) | Gwet AC1 | Confusion |
 |---|---|---|---|
-| `gpt-4o` | 1.00 [0.90, 1.00] | 1.00 | clean diagonal — 0 off-diagonal, n=36 |
+| `gpt-4o` | 1.00 **[0.90, 1.00]** | 1.00 | clean diagonal — 0 off-diagonal, n=36 |
 
-This is **not** a leaderboard — n=36 synthetic cases prove nothing clinical, and a frontier
-model finding these clean cases easy is expected. The point is that (a) `validate-judge`
-turns "do I trust this judge?" into a measured number *with an interval and a confusion
-matrix*, and (b) you should run the **same two commands against your own judge** — including
-a fully on-prem open-weight model (point `OPENAI_BASE_URL` at your vLLM / llama.cpp server;
-see [Open-weight, on-prem judges](#open-weight-on-prem-judges-no-data-leaves-your-cluster))
-— because a smaller model's agreement with human labels is an empirical question, not an
+**Read the [0.90, 1.00] band, not the 1.00 point estimate — and treat even a perfect score
+as uninformative here, not impressive.** It is *expected*: the cases are hand-authored with
+clean-cut labels, the corpus has only 13 sections (so "is this cited section fabricated?" is
+a near-trivial existence check), and the "human" labels are the author's own — so the set is
+separable by construction and nothing can really score below ~1.0 unless the code is broken.
+What this legitimately shows is that the pipeline runs end-to-end and catches the planted
+traps: a fabricated §, a real passage cited to the wrong §, an overclaim that *contradicts*
+the corpus, and a low-lexical paraphrase that only the semantic matcher recovers. What it
+does **not** show is that the judge tracks real clinical judgement — that is an empirical
+question you answer on *your own* held-out, **independently**-labeled set (a perfect number
+on toy data would be worse than none). The published evidence that actually motivates the
+tool is in [`docs/FINDINGS.md`](docs/FINDINGS.md), not this table.
+
+So run the **same two commands against your own judge** — including a fully on-prem
+open-weight model (point `OPENAI_BASE_URL` at your vLLM / llama.cpp server; see
+[Open-weight, on-prem judges](#open-weight-on-prem-judges-no-data-leaves-your-cluster)) —
+because a smaller model's agreement with human labels is an empirical question, not an
 assumption. The hardest cases are the boundaries above (e.g. *is a named guideline without a
 section a citation?*). Reproduce:
 
