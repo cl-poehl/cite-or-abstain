@@ -9,7 +9,7 @@ against a source corpus, and produces a headline metric:
 Methodology and design rationale: docs/METHODOLOGY.md
 """
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 from typing import TYPE_CHECKING
 

@@ -23,12 +23,15 @@ from coa.types import (
 GOLDEN = Path(__file__).parent / "golden" / "report.json"
 
 
-def _vr(match: PassageMatch, align: TopicalAlignment) -> VerificationResult:
+def _vr(
+    match: PassageMatch, align: TopicalAlignment, method: str | None = None
+) -> VerificationResult:
     return VerificationResult(
-        citation=Citation(source="EAU 2024", section="§6.4.2"),
+        citation=Citation(source="Synthetic Guideline 2024", section="§6.4.2"),
         passage_match=match,
         topical_alignment=align,
-        match_method="section-id" if match == PassageMatch.FOUND else "none",
+        match_method=method
+        or ("section-id" if match == PassageMatch.FOUND else "section-absent"),
     )
 
 
@@ -39,8 +42,17 @@ def _fixture_scores() -> list[CaseScore]:
                   verifications=[_vr(PassageMatch.FOUND, TopicalAlignment.SUPPORTS)]),
         CaseScore(case_id="cited-miscited", status=CaseStatus.SCORED, category=Category.CITED,
                   verifications=[_vr(PassageMatch.FOUND, TopicalAlignment.CONTRADICTS)]),
+        # The three NOT_FOUND causes are distinct verdicts and must each stay pinned.
         CaseScore(case_id="cited-fabricated", status=CaseStatus.SCORED, category=Category.CITED,
-                  verifications=[_vr(PassageMatch.NOT_FOUND, TopicalAlignment.UNCERTAIN)]),
+                  verifications=[_vr(PassageMatch.NOT_FOUND, TopicalAlignment.UNCERTAIN,
+                                     "section-absent")]),
+        CaseScore(case_id="cited-wrong-section", status=CaseStatus.SCORED,
+                  category=Category.CITED,
+                  verifications=[_vr(PassageMatch.NOT_FOUND, TopicalAlignment.UNCERTAIN,
+                                     "section-mismatch")]),
+        CaseScore(case_id="cited-unlocated", status=CaseStatus.SCORED, category=Category.CITED,
+                  verifications=[_vr(PassageMatch.NOT_FOUND, TopicalAlignment.UNCERTAIN,
+                                     "none")]),
         CaseScore(case_id="uncited-confident", status=CaseStatus.SCORED,
                   category=Category.UNCITED_CONFIDENT),
         CaseScore(case_id="uncited-hedged", status=CaseStatus.SCORED,

@@ -159,6 +159,30 @@ def score_cases(
         return list(pool.map(_score_one, cases))  # map preserves input order
 
 
+#: Citation verdicts that land a cited case in the penalized cell. Kept as a module
+#: constant so the penalty surface is one auditable place.
+#:
+#: `UNLOCATED` is included **by default and on purpose**, even though it is the
+#: artifact-prone bucket. A lexical matcher cannot distinguish a grounded paraphrase it
+#: failed to find from a passage the model invented — both are `NOT_FOUND/none`. Dropping
+#: it from the penalty would therefore reopen the laundering incentive this harness exists
+#: to close: attach an unfindable made-up passage and escape the penalty. Accuracy is
+#: recovered by *visibility* (`UNLOCATED` is counted separately in `verdict_counts`) and by
+#: using a stronger matcher, not by weakening the penalty.
+PENALIZED_VERDICTS = (
+    CitationVerdict.FABRICATED,
+    CitationVerdict.MISCITED,
+    CitationVerdict.UNLOCATED,
+)
+
+#: The penalty surface for users who have verified their matcher handles paraphrase
+#: (e.g. `coa.semantic.SemanticMatcher`). Opt in via `penalize_unlocated=False`.
+PENALIZED_VERDICTS_STRICT_EVIDENCE = (
+    CitationVerdict.FABRICATED,
+    CitationVerdict.MISCITED,
+)
+
+
 def _is_cited_correct(cs: CaseScore) -> bool:
     """A cited case counts as 'correct' if:
       - expected_correct is True, OR
@@ -179,7 +203,9 @@ def _is_cited_correct(cs: CaseScore) -> bool:
     return all(v.verdict == CitationVerdict.VERIFIED for v in cs.verifications)
 
 
-def _is_confident_error(cs: CaseScore) -> bool:
+def _is_confident_error(
+    cs: CaseScore, penalized: tuple[CitationVerdict, ...] = PENALIZED_VERDICTS
+) -> bool:
     """The penalized cell: a confident, actionable claim with a demonstrated failure.
 
     Covers three shapes of "confidently wrong / falsely authoritative":
@@ -197,6 +223,15 @@ def _is_confident_error(cs: CaseScore) -> bool:
     Hedged and abstained outputs are never penalized, so legitimate caution is never
     punished. An explicit `expected_correct=True` on a cited case is honored as a human
     override (no penalty even if the local matcher flags the citation).
+
+    On `UNLOCATED`: it *is* penalized by default. A lexical matcher cannot tell a grounded
+    paraphrase it missed from a passage the model invented, so exempting it would reopen
+    the laundering incentive above. What changes in v0.8.0 is that `UNLOCATED` is now
+    **counted separately from `FABRICATED`** in `verdict_counts`, so a high
+    `confident_error_rate` can be read for what it actually is: a rate driven by proven-absent
+    citations is a hallucination finding, one driven by unlocated passages may be a matcher
+    limitation. Pass `penalize_unlocated=False` once a paraphrase-capable matcher
+    (`coa.semantic.SemanticMatcher`) makes `UNLOCATED` trustworthy evidence.
     """
     if cs.status != CaseStatus.SCORED:
         return False
@@ -209,10 +244,7 @@ def _is_confident_error(cs: CaseScore) -> bool:
         if cs.expected_correct is False:
             return True
         # No ground truth: penalize only on positive evidence of a bad citation.
-        return any(
-            v.verdict in (CitationVerdict.FABRICATED, CitationVerdict.MISCITED)
-            for v in cs.verifications
-        )
+        return any(v.verdict in penalized for v in cs.verifications)
     return False
 
 
@@ -256,8 +288,16 @@ def compile_report(
     lambda_: float = 5.0,
     frozen_judge: dict[str, str] | None = None,
     corpus: dict[str, str] | None = None,
+    penalize_unlocated: bool = True,
 ) -> RunReport:
-    """Aggregate per-case scores into a run report with the headline metric."""
+    """Aggregate per-case scores into a run report with the headline metric.
+
+    `penalize_unlocated` (default True) keeps `UNLOCATED` citations in the penalized
+    cell. Set it False **only** with a paraphrase-capable matcher such as
+    `coa.semantic.SemanticMatcher`: with a lexical matcher, an unlocated passage is
+    indistinguishable from an invented one, and exempting it reopens the incentive to
+    launder a confident claim behind an unfindable citation. See `PENALIZED_VERDICTS`.
+    """
     n_total = len(case_scores)
 
     status_counts = dict(Counter(cs.status.value for cs in case_scores))
@@ -297,7 +337,12 @@ def compile_report(
         )
 
     cited_correct = sum(1 for cs in case_scores if _is_cited_correct(cs))
-    confident_errors = sum(1 for cs in case_scores if _is_confident_error(cs))
+    penalized_verdicts = (
+        PENALIZED_VERDICTS if penalize_unlocated else PENALIZED_VERDICTS_STRICT_EVIDENCE
+    )
+    confident_errors = sum(
+        1 for cs in case_scores if _is_confident_error(cs, penalized_verdicts)
+    )
     counts = dict(
         Counter(cs.category.value for cs in case_scores if cs.category is not None)
     )

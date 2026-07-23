@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: "cite-or-abstain: an evaluation harness for citation grounding and abstention in clinical LLM outputs"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - given-names: "Carl Luis"
+    family-names: "Pöhl"
+    email: clpoehl@gmail.com
+repository-code: "https://github.com/cl-poehl/cite-or-abstain"
+license: MIT
+version: 0.8.0
+date-released: "2026-07-23"
+keywords:
+  - clinical-ai
+  - llm-evaluation
+  - hallucination
+  - citation-grounding
+  - abstention
+  - medical-ai
+abstract: >-
+  cite-or-abstain scores language-model outputs against a categorical rubric: an actionable
+  claim should either carry a verifiable citation or explicitly abstain. It classifies each
+  output as cited, uncited-confident, uncited-hedged, or abstained, then verifies cited
+  claims on two axes — a deterministic, location-aware passage match against a pinned corpus,
+  and a narrow topical-alignment judge. The headline metric,
+  coverage - lambda * confident_error_rate, penalises only the confident-error cell, so
+  abstention is never punished and a fabricated citation is never scored a free zero.
+  Citation verdicts separate demonstrated failure (fabricated, miscited) from inconclusive
+  evidence (unlocated), so a matcher limitation is not misreported as a hallucination rate.
+  The harness measures its own LLM judge against human labels (accuracy with Wilson intervals,
+  Gwet's AC1, and a confusion matrix), and runs fully on-prem against any OpenAI-compatible
+  server.
