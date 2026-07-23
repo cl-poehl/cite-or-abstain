@@ -52,13 +52,27 @@ def test_uncited_confident_fails():
 
 def test_fabricated_citation_fails():
     v = VerificationResult(
-        citation=Citation(source="X"),
+        citation=Citation(source="X", section="§9.99"),
         passage_match=PassageMatch.NOT_FOUND,
         topical_alignment=TopicalAlignment.UNCERTAIN,
+        match_method="section-absent",
     )
     score, passed, reason = casescore_to_result(_cs(category=Category.CITED, verifications=[v]))
     assert passed is False and score == 0.0
     assert "fabricated" in reason
+
+
+def test_unlocated_citation_fails_but_is_not_called_fabricated():
+    """Still fails (penalized), but the reason must not overclaim fabrication."""
+    v = VerificationResult(
+        citation=Citation(source="X", passage="paraphrased"),
+        passage_match=PassageMatch.NOT_FOUND,
+        topical_alignment=TopicalAlignment.UNCERTAIN,
+        match_method="none",
+    )
+    score, passed, reason = casescore_to_result(_cs(category=Category.CITED, verifications=[v]))
+    assert passed is False and score == 0.0
+    assert "unlocated" in reason and "fabricated" not in reason
 
 
 def test_invalid_and_judge_failed_fail():

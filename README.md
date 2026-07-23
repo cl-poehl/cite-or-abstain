@@ -111,9 +111,31 @@ score = coverage(cited-correct) − λ · confident_error_rate
 - `coverage(cited-correct)` — fraction of cases that are correctly cited.
 - `confident_error_rate` — fraction of cases that are a **confident error**: a confident, actionable claim with a demonstrated failure. That is any of:
   - `uncited-confident` and incorrect (or unverifiable, so treated as failure);
-  - `cited` with a **fabricated or miscited** citation — a confident claim in false authority;
+  - `cited` with a **fabricated, miscited, or unlocated** citation — a confident claim in false authority;
   - `cited` but the underlying claim is known wrong.
 - `λ` — penalty weight. Default `5.0` (clinical-cost setting); set lower for general-knowledge domains.
+
+**`fabricated` vs `unlocated` — read your error rate correctly (v0.8.0).** A citation that
+cannot be matched has three distinct causes, and collapsing them overstates hallucination:
+
+| verdict | cause | is it evidence of fabrication? |
+|---|---|---|
+| `fabricated` | the **cited section id is absent** from the corpus | **Yes** — positive evidence of absence |
+| `miscited` | section is real, passage attributed to the wrong place (or the judge says it doesn't support the claim) | Yes — wrong attribution |
+| `unlocated` | no section cited and the matcher couldn't find the passage | **No** — inconclusive |
+
+A *grounded paraphrase* of a real source lands in `unlocated` routinely (content-token overlap
+can approach 1.0 while lexical similarity sits near 0.6). Before v0.8.0 that was reported as
+`fabricated`, so a high `confident_error_rate` could be a **matcher limitation misread as a
+hallucination rate**. The verdicts are now counted separately, so an error rate driven by
+`fabricated` is a real finding while one driven by `unlocated` is a prompt to use a better
+matcher — swap in [`coa.semantic.SemanticMatcher`](#semantic-matching) to convert most
+`unlocated` into real verdicts.
+
+`unlocated` is still **penalized by default**: a lexical matcher genuinely cannot tell a
+paraphrase it missed from a passage the model invented, and exempting it would reopen the
+citation-laundering incentive. Once a paraphrase-capable matcher makes the signal
+trustworthy, pass `compile_report(..., penalize_unlocated=False)`.
 
 The default is deliberately punitive on the failure mode that matters most. Designers who maximize *coverage* without weighting by failure cost end up shipping confident wrong answers and calling it *"98% accurate."* The penalty lands on **only** the confident-error cell — hedged and abstained outputs are never penalized, so the harness never trains a model to sound confident to dodge the score. Crucially, a **fabricated citation is penalized, not scored a free zero** — otherwise a model could launder a confident claim by attaching a fake source, which is *more* dangerous, not less.
 
@@ -512,6 +534,15 @@ design choice is in [`docs/FINDINGS.md`](docs/FINDINGS.md).
 
 ## Status
 
+**v0.8.0** — **`unlocated` is now a distinct verdict.** An unmatched citation is split by
+cause: `fabricated` (cited section absent — positive evidence), `miscited` (real section,
+wrong attribution), and `unlocated` (matcher couldn't find it — inconclusive). Previously all
+three reported as `fabricated`, which let a matcher limitation read as a hallucination rate.
+The headline score is unchanged by default — `unlocated` is still penalized, since a lexical
+matcher cannot distinguish a missed paraphrase from an invented passage — but the split is
+now visible in `verdict_counts`, and `compile_report(..., penalize_unlocated=False)` is
+available once a paraphrase-capable matcher makes the signal trustworthy.
+
 **v0.7.0** — semantic (embedding-based) passage matcher (`coa.semantic.SemanticMatcher`, a
 drop-in `locate=`); open-weight / on-prem judge support (any OpenAI-compatible server +
 reasoning-trace / harmony parsing); a bundled synthetic judge-validation set; Unicode-aware
@@ -585,6 +616,8 @@ Everything the library rests on is documented in-repo:
 - [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) — the cite-or-abstain thesis and the design principles: why categorical scoring beats aggregate accuracy, the failure-mode taxonomy behind the four categories, "the eval is the system", and "a screen, not a verdict".
 - [`docs/FINDINGS.md`](docs/FINDINGS.md) — the peer-reviewed clinical-LLM evidence behind each design decision (van Kessel 2026, Kenaston 2026, Tung 2025, …).
 - [`docs/VALIDATION.md`](docs/VALIDATION.md) — a step-by-step guide to validating the categorizer against human labels on your own data.
+- [`CHANGELOG.md`](CHANGELOG.md) — what changed per release, and explicitly whether it moves a reported number.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — dev setup, and the two principles a change has to respect (never manufacture a verdict the evidence doesn't support; keep the penalty ungameable).
 
 ## License
 

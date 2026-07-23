@@ -71,14 +71,24 @@ class PassageMatch(str, Enum):
 class CitationVerdict(str, Enum):
     """The derived, single-word verdict for one citation.
 
-    Distinguishes the two failure modes the harness exists to separate:
-    a *fabricated* citation (the reference does not exist in the corpus) from a
-    *miscited* one (the reference exists but does not support the claim).
+    Separates the failure modes the harness exists to distinguish, and — just as
+    importantly — separates *demonstrated* failure from *inconclusive evidence*.
+
+    `FABRICATED` is reserved for **positive evidence of absence**: the cited section
+    id itself is not in the corpus. When no section is cited and the matcher simply
+    fails to find the passage, that is `UNLOCATED`, not fabrication — absence of a
+    lexical match is not proof of absence. A grounded paraphrase of a real source
+    lands there routinely (content-token overlap can approach 1.0 while lexical
+    similarity sits near 0.6), so collapsing it into `FABRICATED` inflates the
+    penalized cell with a measurement artifact and reports a hallucination rate
+    that is really a matcher limitation. Use a semantic matcher
+    (`coa.semantic.SemanticMatcher`) to convert `UNLOCATED` into a real answer.
     """
 
     VERIFIED = "verified"  # located in corpus AND passage supports the claim
-    MISCITED = "miscited"  # located in corpus BUT passage is unrelated / contradicts
-    FABRICATED = "fabricated"  # not locatable in corpus (the classic hallucinated citation)
+    MISCITED = "miscited"  # unrelated/contradicts, or attributed to the wrong section
+    FABRICATED = "fabricated"  # cited section absent from corpus (positive evidence)
+    UNLOCATED = "unlocated"  # matcher could not locate it; inconclusive, NOT proof of fabrication
     UNCERTAIN = "uncertain"  # located, but the judge cannot confirm support
     UNVERIFIABLE = "unverifiable"  # no corpus was available to check against
 
@@ -148,11 +158,24 @@ class VerificationResult(BaseModel):
 
     @property
     def verdict(self) -> CitationVerdict:
-        """Collapse the two raw signals into one auditable verdict."""
+        """Collapse the two raw signals into one auditable verdict.
+
+        `NOT_FOUND` has three distinct causes and only one of them is evidence of
+        fabrication, so the match *method* decides:
+
+          - ``section-absent``   -> FABRICATED (the cited section id is not in the corpus)
+          - ``section-mismatch`` -> MISCITED   (section is real; passage attributed to the
+                                                wrong place — a wrong-location citation)
+          - anything else        -> UNLOCATED  (matcher could not find it; inconclusive)
+        """
         if self.passage_match == PassageMatch.UNVERIFIABLE:
             return CitationVerdict.UNVERIFIABLE
         if self.passage_match == PassageMatch.NOT_FOUND:
-            return CitationVerdict.FABRICATED
+            if self.match_method == "section-absent":
+                return CitationVerdict.FABRICATED
+            if self.match_method == "section-mismatch":
+                return CitationVerdict.MISCITED
+            return CitationVerdict.UNLOCATED
         # passage located -> alignment decides
         if self.topical_alignment == TopicalAlignment.SUPPORTS:
             return CitationVerdict.VERIFIED

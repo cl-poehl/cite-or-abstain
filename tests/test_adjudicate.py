@@ -23,9 +23,10 @@ def _verified():
 
 def _fabricated():
     return VerificationResult(
-        citation=Citation(source="X"),
+        citation=Citation(source="X", section="§9.99"),
         passage_match=PassageMatch.NOT_FOUND,
         topical_alignment=TopicalAlignment.UNCERTAIN,
+        match_method="section-absent",
     )
 
 

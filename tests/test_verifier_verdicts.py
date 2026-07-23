@@ -40,21 +40,43 @@ def test_locate_no_corpus_is_unverifiable_not_notfound():
 
 
 def test_verdict_mapping():
-    def vr(match, align):
+    def vr(match, align, method=""):
         return VerificationResult(
-            citation=Citation(source="X"), passage_match=match, topical_alignment=align
+            citation=Citation(source="X"),
+            passage_match=match,
+            topical_alignment=align,
+            match_method=method,
         )
 
     assert vr(PassageMatch.FOUND, TopicalAlignment.SUPPORTS).verdict == CitationVerdict.VERIFIED
     assert vr(PassageMatch.FOUND, TopicalAlignment.CONTRADICTS).verdict == CitationVerdict.MISCITED
     assert vr(PassageMatch.FOUND, TopicalAlignment.UNRELATED).verdict == CitationVerdict.MISCITED
     assert vr(PassageMatch.FOUND, TopicalAlignment.UNCERTAIN).verdict == CitationVerdict.UNCERTAIN
-    nf = vr(PassageMatch.NOT_FOUND, TopicalAlignment.SUPPORTS)
-    assert nf.verdict == CitationVerdict.FABRICATED
     assert (
         vr(PassageMatch.UNVERIFIABLE, TopicalAlignment.UNCERTAIN).verdict
         == CitationVerdict.UNVERIFIABLE
     )
+
+
+def test_not_found_verdict_splits_by_cause():
+    """NOT_FOUND has three causes; only `section-absent` is evidence of fabrication."""
+
+    def nf(method):
+        return VerificationResult(
+            citation=Citation(source="X"),
+            passage_match=PassageMatch.NOT_FOUND,
+            topical_alignment=TopicalAlignment.SUPPORTS,
+            match_method=method,
+        ).verdict
+
+    # The cited section id is not in the corpus -> positive evidence of absence.
+    assert nf("section-absent") == CitationVerdict.FABRICATED
+    # Section is real, passage attributed elsewhere -> a wrong-location citation.
+    assert nf("section-mismatch") == CitationVerdict.MISCITED
+    # No section and the matcher simply could not find it -> inconclusive, NOT fabrication.
+    assert nf("none") == CitationVerdict.UNLOCATED
+    # Unknown/absent method must fail safe to the non-accusatory verdict.
+    assert nf("") == CitationVerdict.UNLOCATED
 
 
 def test_verify_citation_skips_judge_when_not_found():

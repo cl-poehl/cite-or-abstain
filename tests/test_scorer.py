@@ -79,13 +79,14 @@ def test_cited_passes_verification_counts_as_correct():
     assert report.verdict_counts["verified"] == 1
 
 
-def test_cited_with_hallucinated_passage_is_not_correct():
-    """Without expected_correct, cited with a fabricated (not-found) passage is not correct."""
+def test_cited_with_fabricated_section_is_not_correct():
+    """A cited section that is absent from the corpus is FABRICATED — proven absent."""
     verifications = [
         VerificationResult(
-            citation=Citation(source="X"),
+            citation=Citation(source="X", section="§9.99"),
             passage_match=PassageMatch.NOT_FOUND,
             topical_alignment=TopicalAlignment.SUPPORTS,
+            match_method="section-absent",
         )
     ]
     scores = [make_score("a", Category.CITED, verifications=verifications)]
@@ -93,6 +94,49 @@ def test_cited_with_hallucinated_passage_is_not_correct():
     assert report.coverage_cited_correct == 0.0
     assert report.verdict_counts["fabricated"] == 1
     # A fabricated citation is a confident error — it must be PENALIZED, not score a free 0.
+    assert report.confident_error_rate == 1.0
+
+
+def test_cited_with_unlocated_passage_is_penalized_but_labelled_separately():
+    """No section + passage the matcher cannot find -> UNLOCATED, not FABRICATED.
+
+    Absence of a lexical match is not proof of absence (a grounded paraphrase lands
+    here), so the *label* must not claim fabrication. The penalty still applies by
+    default: a lexical matcher cannot tell a missed paraphrase from an invented
+    passage, and exempting it would reopen the citation-laundering incentive.
+    """
+    verifications = [
+        VerificationResult(
+            citation=Citation(source="X", passage="a grounded paraphrase"),
+            passage_match=PassageMatch.NOT_FOUND,
+            topical_alignment=TopicalAlignment.SUPPORTS,
+            match_method="none",
+        )
+    ]
+    scores = [make_score("a", Category.CITED, verifications=verifications)]
+    report = compile_report(scores, "test-model")
+    assert report.coverage_cited_correct == 0.0
+    assert report.verdict_counts["unlocated"] == 1
+    assert "fabricated" not in report.verdict_counts
+    assert report.confident_error_rate == 1.0
+    # ...and an informed user with a paraphrase-capable matcher can opt out.
+    lenient = compile_report(scores, "test-model", penalize_unlocated=False)
+    assert lenient.confident_error_rate == 0.0
+
+
+def test_wrong_section_is_miscited_not_fabricated():
+    """Real section, passage attributed to the wrong place -> MISCITED, still penalized."""
+    verifications = [
+        VerificationResult(
+            citation=Citation(source="X", section="§1.1", passage="real text"),
+            passage_match=PassageMatch.NOT_FOUND,
+            topical_alignment=TopicalAlignment.SUPPORTS,
+            match_method="section-mismatch",
+        )
+    ]
+    scores = [make_score("a", Category.CITED, verifications=verifications)]
+    report = compile_report(scores, "test-model")
+    assert report.verdict_counts["miscited"] == 1
     assert report.confident_error_rate == 1.0
 
 

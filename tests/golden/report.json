@@ -12,7 +12,7 @@
           "citation": {
             "passage": "",
             "section": "\u00a76.4.2",
-            "source": "EAU 2024"
+            "source": "Synthetic Guideline 2024"
           },
           "match_method": "section-id",
           "passage_match": "found",
@@ -32,7 +32,7 @@
           "citation": {
             "passage": "",
             "section": "\u00a76.4.2",
-            "source": "EAU 2024"
+            "source": "Synthetic Guideline 2024"
           },
           "match_method": "section-id",
           "passage_match": "found",
@@ -52,7 +52,47 @@
           "citation": {
             "passage": "",
             "section": "\u00a76.4.2",
-            "source": "EAU 2024"
+            "source": "Synthetic Guideline 2024"
+          },
+          "match_method": "section-absent",
+          "passage_match": "not-found",
+          "topical_alignment": "uncertain"
+        }
+      ]
+    },
+    {
+      "case_id": "cited-wrong-section",
+      "category": "cited",
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "scored",
+      "verifications": [
+        {
+          "citation": {
+            "passage": "",
+            "section": "\u00a76.4.2",
+            "source": "Synthetic Guideline 2024"
+          },
+          "match_method": "section-mismatch",
+          "passage_match": "not-found",
+          "topical_alignment": "uncertain"
+        }
+      ]
+    },
+    {
+      "case_id": "cited-unlocated",
+      "category": "cited",
+      "citations": [],
+      "expected_category": null,
+      "expected_correct": null,
+      "status": "scored",
+      "verifications": [
+        {
+          "citation": {
+            "passage": "",
+            "section": "\u00a76.4.2",
+            "source": "Synthetic Guideline 2024"
           },
           "match_method": "none",
           "passage_match": "not-found",
@@ -116,40 +156,41 @@
     }
   ],
   "categorizer_accuracy": null,
-  "confident_error_rate": 0.42857142857142855,
+  "confident_error_rate": 0.5555555555555556,
   "corpus": {},
   "counts": {
     "abstained": 1,
-    "cited": 3,
+    "cited": 5,
     "uncited-confident": 1,
     "uncited-hedged": 1
   },
   "coverage_ci": [
-    0.02567895594897479,
-    0.51313450331903
+    0.019890371327130535,
+    0.4350062147680601
   ],
-  "coverage_cited_correct": 0.14285714285714285,
-  "error_rate": 0.1111111111111111,
+  "coverage_cited_correct": 0.1111111111111111,
+  "error_rate": 0.09090909090909091,
   "frozen_judge": {},
-  "judge_failure_rate": 0.1111111111111111,
+  "judge_failure_rate": 0.09090909090909091,
   "judge_vs_mechanical_delta": 1,
   "lambda_": 5.0,
   "model": "golden-model",
   "rate_ci": [
-    0.15821692226262685,
-    0.7495457695909742
+    0.2666473457440297,
+    0.811224570528086
   ],
-  "score": -2.0,
-  "scored_denominator": 7,
+  "score": -2.6666666666666665,
+  "scored_denominator": 9,
   "status_counts": {
     "error": 1,
     "invalid-output": 1,
     "judge-failed": 1,
-    "scored": 6
+    "scored": 8
   },
   "verdict_counts": {
     "fabricated": 1,
-    "miscited": 1,
+    "miscited": 2,
+    "unlocated": 1,
     "verified": 1
   }
 }

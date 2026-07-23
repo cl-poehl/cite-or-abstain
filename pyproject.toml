@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cite-or-abstain"
-version = "0.7.0"
+version = "0.8.0"
 description = "Evaluation harness for cite-or-abstain compliance in clinical LLM outputs."
 readme = "README.md"
 authors = [{ name = "Carl Luis Pöhl", email = "clpoehl@gmail.com" }]
